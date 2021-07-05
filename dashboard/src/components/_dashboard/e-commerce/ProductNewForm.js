@@ -10,7 +10,7 @@ import { LoadingButton } from '@material-ui/lab';
 import {
   Card,
   Chip,
-  Grid,
+  Grid, 
   Stack,
   Radio,
   Switch,
@@ -32,6 +32,8 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 //
 import { QuillEditor } from '../../editor';
 import { UploadMultiFile } from '../../upload';
+
+import { Button } from '@material-ui/core';
 
 // ----------------------------------------------------------------------
 
@@ -149,7 +151,7 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
               <Stack spacing={3}>
                 <TextField
                   fullWidth
-                  label="Product Name"
+                  label="Title"
                   {...getFieldProps('name')}
                   error={Boolean(touched.name && errors.name)}
                   helperText={touched.name && errors.name}
@@ -172,7 +174,7 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                 </div>
 
                 <div>
-                  <LabelStyle>Add Images</LabelStyle>
+                  <LabelStyle>Upload CSV</LabelStyle>
                   <UploadMultiFile
                     showPreview
                     maxSize={3145728}
@@ -189,13 +191,14 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                     </FormHelperText>
                   )}
                 </div>
+                <Button variant="contained" color="primary" fullWidth>Submit</Button>
               </Stack>
             </Card>
           </Grid>
 
           <Grid item xs={12} md={4}>
             <Stack spacing={3}>
-              <Card sx={{ p: 3 }}>
+              {/* <Card sx={{ p: 3 }}>
                 <FormControlLabel
                   control={<Switch {...getFieldProps('inStock')} checked={values.inStock} />}
                   label="In stock"
@@ -247,9 +250,9 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                     renderInput={(params) => <TextField label="Tags" {...params} />}
                   />
                 </Stack>
-              </Card>
+              </Card> */}
 
-              <Card sx={{ p: 3 }}>
+              {/* <Card sx={{ p: 3 }}>
                 <Stack spacing={3}>
                   <TextField
                     fullWidth
@@ -281,11 +284,11 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                   label="Price includes taxes"
                   sx={{ mt: 2 }}
                 />
-              </Card>
+              </Card> */}
 
-              <LoadingButton type="submit" fullWidth variant="contained" size="large" loading={isSubmitting}>
+              {/* <LoadingButton type="submit" fullWidth variant="contained" size="large" loading={isSubmitting}>
                 {!isEdit ? 'Create Product' : 'Save Changes'}
-              </LoadingButton>
+              </LoadingButton> */}
             </Stack>
           </Grid>
         </Grid>

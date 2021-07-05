@@ -28,9 +28,9 @@ export default function EcommerceProductCreate() {
   }, [dispatch]);
 
   return (
-    <Page title="Ecommerce: Create a new product | Minimal-UI">
+    <Page>
       <Container>
-        <HeaderBreadcrumbs
+        {/* <HeaderBreadcrumbs
           heading={!isEdit ? 'Create a new product' : 'Edit product'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
@@ -40,7 +40,7 @@ export default function EcommerceProductCreate() {
             },
             { name: !isEdit ? 'New product' : name }
           ]}
-        />
+        /> */}
 
         <ProductNewForm isEdit={isEdit} currentProduct={currentProduct} />
       </Container>

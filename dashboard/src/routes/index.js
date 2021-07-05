@@ -11,6 +11,7 @@ import AuthGuard from '../guards/AuthGuard';
 // import RoleBasedGuard from '../guards/RoleBasedGuard';
 // components
 import LoadingScreen from '../components/LoadingScreen';
+import Drawer from 'src/theme/overrides/Drawer';
 
 // ----------------------------------------------------------------------
 
@@ -136,7 +137,10 @@ export default function Router() {
             { path: ':conversationKey', element: <Chat /> }
           ]
         },
-        { path: 'calendar', element: <Calendar /> }
+        { path: 'calendar', element: <Calendar /> },
+        { path: 'sendsms', element: <Sendsms /> },
+        { path: 'draftupload', element: <Draftupload /> },
+        { path: 'schedular', element: <Schedular /> },
         // { path: 'kanban', element: <Kanban /> }
       ]
     },
@@ -260,6 +264,9 @@ const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')))
 const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
 const Mail = Loadable(lazy(() => import('../pages/dashboard/Mail')));
 const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
+const Sendsms = Loadable(lazy(() => import('../pages/dashboard/Sendsms.js')));
+const Draftupload = Loadable(lazy(() => import('../pages/dashboard/Draftupload.js')));
+const Schedular = Loadable(lazy(() => import('../pages/dashboard/Schedular.js')));
 // const Kanban = Loadable(lazy(() => import('../pages/dashboard/Kanban')));
 // Docs
 const Docs = Loadable(lazy(() => import('../pages/Docs')));

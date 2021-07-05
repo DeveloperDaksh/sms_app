@@ -116,6 +116,7 @@
     "react-scroll": "^1.8.1",
     "react-slick": "^0.28.0",
     "react-spring": "^9.1.0",
+    "react-swipeable-views": "^0.14.0",
     "redux": "^4.1.0",
     "redux-persist": "^6.0.0",
     "rehype-highlight": "^4.1.0",
