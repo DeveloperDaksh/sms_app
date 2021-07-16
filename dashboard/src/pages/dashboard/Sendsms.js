@@ -4,6 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Button } from '@material-ui/core';
+import axios from 'axios';
 
 const choices = [
     {
@@ -38,6 +39,8 @@ const choices = [
 export default function Sendsms() {
 
     const [choice, setChoice] = React.useState('Transactional sms-99446');
+    const [mob, setMob] = React.useState('');
+    const [msg, setMsg] = React.useState('');
 
     const handleChange = (event) => {
         setChoice(event.target.value);
@@ -61,6 +64,16 @@ export default function Sendsms() {
       setChecked2(event.target.checked);
     };
 
+    function handleClick(){
+        let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english`;
+        console.log(call);
+        axios.post(call).then((res)=>{
+            console.log(res);
+        }).catch((err)=>{
+            console.log(err);
+        })
+    }
+
     return (
         <div>
             <TextField
@@ -81,6 +94,8 @@ export default function Sendsms() {
             <TextField id="outlined-basic" variant="outlined" fullWidth/>
             <h1 style={{marginTop: "20px"}}>Mobile number</h1>
             <TextField
+                value = {mob}
+                onChange = {(e)=>setMob(e.target.value)}
                 id="outlined-multiline-static"
                 multiline
                 rows={10}
@@ -119,6 +134,8 @@ export default function Sendsms() {
             </div>
 
             <TextField
+                value = {msg}
+                onChange = {(e)=>setMsg(e.target.value)}
                 id="outlined-multiline-static"
                 multiline
                 rows={10}
@@ -156,7 +173,7 @@ export default function Sendsms() {
             
             
             <div style={{marginTop: "20px"}}>
-                <Button variant="contained" color="primary" style={{height: "45px", width: "107px",}}>
+                <Button onClick={handleClick} variant="contained" color="primary" style={{height: "45px", width: "107px",}}>
                 Send Now
                 </Button>
                 <Button variant="contained" color="secondary" style={{height: "45px", width: "107px",marginLeft: "10px"}}>
