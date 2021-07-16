@@ -67,7 +67,7 @@ export default function Sendsms() {
     function handleClick(){
         let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english`;
         console.log(call);
-        axios.post(call).then((res)=>{
+        axios.get(call).then((res)=>{
             console.log(res);
         }).catch((err)=>{
             console.log(err);
