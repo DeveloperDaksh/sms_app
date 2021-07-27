@@ -1,16 +1,17 @@
-import * as Yup from 'yup';
-import PropTypes from 'prop-types';
-import { useSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
-import { useCallback } from 'react';
-import { Form, FormikProvider, useFormik } from 'formik';
+import React, { useState } from "react";
+import * as Yup from "yup";
+import PropTypes from "prop-types";
+import { useSnackbar } from "notistack";
+import { useNavigate } from "react-router-dom";
+import { useCallback } from "react";
+import { Form, FormikProvider, useFormik } from "formik";
 // material
-import { experimentalStyled as styled } from '@material-ui/core/styles';
-import { LoadingButton } from '@material-ui/lab';
+import { experimentalStyled as styled } from "@material-ui/core/styles";
+import { LoadingButton } from "@material-ui/lab";
 import {
   Card,
   Chip,
-  Grid, 
+  Grid,
   Stack,
   Radio,
   Switch,
@@ -23,55 +24,62 @@ import {
   Autocomplete,
   InputAdornment,
   FormHelperText,
-  FormControlLabel
-} from '@material-ui/core';
+  FormControlLabel,
+} from "@material-ui/core";
 // utils
-import fakeRequest from '../../../utils/fakeRequest';
+import fakeRequest from "../../../utils/fakeRequest";
 // routes
-import { PATH_DASHBOARD } from '../../../routes/paths';
+import { PATH_DASHBOARD } from "../../../routes/paths";
 //
-import { QuillEditor } from '../../editor';
-import { UploadMultiFile } from '../../upload';
+import { QuillEditor } from "../../editor";
+import { UploadMultiFile } from "../../upload";
 
-import { Button } from '@material-ui/core';
-
+import { Button } from "@material-ui/core";
+import CSVReader from "react-csv-reader";
+import axios from "axios";
 // ----------------------------------------------------------------------
 
-const GENDER_OPTION = ['Men', 'Women', 'Kids'];
+const GENDER_OPTION = ["Men", "Women", "Kids"];
 
 const CATEGORY_OPTION = [
-  { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather'] },
-  { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats'] },
-  { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] }
+  { group: "Clothing", classify: ["Shirts", "T-shirts", "Jeans", "Leather"] },
+  {
+    group: "Tailored",
+    classify: ["Suits", "Blazers", "Trousers", "Waistcoats"],
+  },
+  {
+    group: "Accessories",
+    classify: ["Shoes", "Backpacks and bags", "Bracelets", "Face masks"],
+  },
 ];
 
 const TAGS_OPTION = [
-  'Toy Story 3',
-  'Logan',
-  'Full Metal Jacket',
-  'Dangal',
-  'The Sting',
-  '2001: A Space Odyssey',
+  "Toy Story 3",
+  "Logan",
+  "Full Metal Jacket",
+  "Dangal",
+  "The Sting",
+  "2001: A Space Odyssey",
   "Singin' in the Rain",
-  'Toy Story',
-  'Bicycle Thieves',
-  'The Kid',
-  'Inglourious Basterds',
-  'Snatch',
-  '3 Idiots'
+  "Toy Story",
+  "Bicycle Thieves",
+  "The Kid",
+  "Inglourious Basterds",
+  "Snatch",
+  "3 Idiots",
 ];
 
 const LabelStyle = styled(Typography)(({ theme }) => ({
   ...theme.typography.subtitle2,
   color: theme.palette.text.secondary,
-  marginBottom: theme.spacing(1)
+  marginBottom: theme.spacing(1),
 }));
 
 // ----------------------------------------------------------------------
 
 ProductNewForm.propTypes = {
   isEdit: PropTypes.bool,
-  currentProduct: PropTypes.object
+  currentProduct: PropTypes.object,
 };
 
 export default function ProductNewForm({ isEdit, currentProduct }) {
@@ -79,27 +87,27 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProductSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    description: Yup.string().required('Description is required'),
-    images: Yup.array().min(1, 'Images is required'),
-    price: Yup.number().required('Price is required')
+    name: Yup.string().required("Name is required"),
+    description: Yup.string().required("Description is required"),
+    images: Yup.array().min(1, "Images is required"),
+    price: Yup.number().required("Price is required"),
   });
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      name: currentProduct?.name || '',
-      description: currentProduct?.description || '',
+      name: currentProduct?.name || "",
+      description: currentProduct?.description || "",
       images: currentProduct?.images || [],
-      code: currentProduct?.code || '',
-      sku: currentProduct?.sku || '',
-      price: currentProduct?.price || '',
-      priceSale: currentProduct?.priceSale || '',
+      code: currentProduct?.code || "",
+      sku: currentProduct?.sku || "",
+      price: currentProduct?.price || "",
+      priceSale: currentProduct?.priceSale || "",
       tags: currentProduct?.tags || [TAGS_OPTION[0]],
-      inStock: Boolean(currentProduct?.inventoryType !== 'out_of_stock'),
+      inStock: Boolean(currentProduct?.inventoryType !== "out_of_stock"),
       taxes: true,
       gender: currentProduct?.gender || GENDER_OPTION[2],
-      category: currentProduct?.category || CATEGORY_OPTION[0].classify[1]
+      category: currentProduct?.category || CATEGORY_OPTION[0].classify[1],
     },
     validationSchema: NewProductSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
@@ -107,25 +115,36 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
         await fakeRequest(500);
         resetForm();
         setSubmitting(false);
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        enqueueSnackbar(!isEdit ? "Create success" : "Update success", {
+          variant: "success",
+        });
         navigate(PATH_DASHBOARD.eCommerce.list);
       } catch (error) {
         console.error(error);
         setSubmitting(false);
         setErrors(error);
       }
-    }
+    },
   });
 
-  const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+  const {
+    errors,
+    values,
+    touched,
+    handleSubmit,
+    isSubmitting,
+    setFieldValue,
+    getFieldProps,
+  } = formik;
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
+      console.log(acceptedFiles);
       setFieldValue(
-        'images',
+        "images",
         acceptedFiles.map((file) =>
           Object.assign(file, {
-            preview: URL.createObjectURL(file)
+            preview: URL.createObjectURL(file),
           })
         )
       );
@@ -134,12 +153,42 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
   );
 
   const handleRemoveAll = () => {
-    setFieldValue('images', []);
+    setFieldValue("images", []);
   };
 
   const handleRemove = (file) => {
     const filteredItems = values.images.filter((_file) => _file !== file);
-    setFieldValue('images', filteredItems);
+    setFieldValue("images", filteredItems);
+  };
+
+  const [data, setData] = useState([]);
+
+  const handleForce = (data, fileInfo) => setData(data);
+
+  const papaparseOptions = {
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: true,
+    transformHeader: (header) => header.toLowerCase().replace(/\W/g, "_"),
+  };
+
+  function handleClick(msg, mob) {
+    let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english`;
+    axios
+      .get(call)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  const sendSMS = () => {
+    if (data.length > 0)
+      data.map((d) => {
+        handleClick(d.message, d.phone_numbers);
+      });
   };
 
   return (
@@ -152,7 +201,7 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                 <TextField
                   fullWidth
                   label="Title"
-                  {...getFieldProps('name')}
+                  {...getFieldProps("name")}
                   error={Boolean(touched.name && errors.name)}
                   helperText={touched.name && errors.name}
                 />
@@ -163,7 +212,7 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                     simple
                     id="product-description"
                     value={values.description}
-                    onChange={(val) => setFieldValue('description', val)}
+                    onChange={(val) => setFieldValue("description", val)}
                     error={Boolean(touched.description && errors.description)}
                   />
                   {touched.description && errors.description && (
@@ -172,18 +221,23 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                     </FormHelperText>
                   )}
                 </div>
-
                 <div>
                   <LabelStyle>Upload CSV</LabelStyle>
-                  <UploadMultiFile
+                  {/* <UploadMultiFile
                     showPreview
                     maxSize={3145728}
-                    accept="image/*"
+                    accept=".csv"
                     files={values.images}
                     onDrop={handleDrop}
                     onRemove={handleRemove}
                     onRemoveAll={handleRemoveAll}
                     error={Boolean(touched.images && errors.images)}
+                  /> */}
+                  <CSVReader
+                    cssClass="react-csv-input"
+                    label="Select CSV"
+                    onFileLoaded={handleForce}
+                    parserOptions={papaparseOptions}
                   />
                   {touched.images && errors.images && (
                     <FormHelperText error sx={{ px: 2 }}>
@@ -191,7 +245,14 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                     </FormHelperText>
                   )}
                 </div>
-                <Button variant="contained" color="primary" fullWidth>Submit</Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={sendSMS}
+                >
+                  Submit
+                </Button>
               </Stack>
             </Card>
           </Grid>
