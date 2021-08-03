@@ -25,6 +25,11 @@ import {
   InputAdornment,
   FormHelperText,
   FormControlLabel,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@material-ui/core";
 // utils
 import fakeRequest from "../../../utils/fakeRequest";
@@ -183,19 +188,63 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
         console.log(err);
       });
   }
-
   const sendSMS = () => {
     if (data.length > 0)
       data.map((d) => {
         handleClick(d.message, d.phone_numbers);
+        // console.log(d.message, d.phone_numbers);
       });
   };
+  const [text, setText] = useState("");
 
   return (
     <FormikProvider value={formik}>
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={12}>
+            {data.length > 0 && (
+              <Card
+                sx={{ p: 3 }}
+                style={{
+                  maxHeight: "300px",
+                  display: "scroll",
+                  overflowY: "scroll",
+                }}
+              >
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setText(`${text}` + " %COL1% ")}
+                      >
+                        Name
+                      </TableCell>
+                      <TableCell
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setText(`${text}` + " %COL2% ")}
+                      >
+                        Phone Number
+                      </TableCell>
+                      {/* <TableCell>Message</TableCell> */}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data.map((d) => (
+                      <TableRow key={data.indexOf(d)}>
+                        <TableCell component="th" scope="row">
+                          {d.name}
+                        </TableCell>
+                        <TableCell>{d.phone_numbers}</TableCell>
+                        {/* <TableCell>{d.message}</TableCell> */}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
+          </Grid>
+          <Grid item xs={12} md={12}>
             <Card sx={{ p: 3 }}>
               <Stack spacing={3}>
                 <TextField
@@ -208,18 +257,31 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
 
                 <div>
                   <LabelStyle>Description</LabelStyle>
-                  <QuillEditor
+                  {/* <QuillEditor
                     simple
                     id="product-description"
                     value={values.description}
                     onChange={(val) => setFieldValue("description", val)}
                     error={Boolean(touched.description && errors.description)}
+                  /> */}
+                  <TextField
+                    label="Message"
+                    multiline
+                    rows={4}
+                    fullWidth
+                    defaultValue="Enter message ..."
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    variant="outlined"
                   />
                   {touched.description && errors.description && (
                     <FormHelperText error sx={{ px: 2 }}>
                       {touched.description && errors.description}
                     </FormHelperText>
                   )}
+                  {/* {values?.description?.split(">")[1] === "<br"
+                    ? ""
+                    : values?.description?.split(">")[1]?.split("<")[0]} */}
                 </div>
                 <div>
                   <LabelStyle>Upload CSV</LabelStyle>
@@ -235,7 +297,7 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                   /> */}
                   <CSVReader
                     cssClass="react-csv-input"
-                    label="Select CSV"
+                    label="Select CSV  "
                     onFileLoaded={handleForce}
                     parserOptions={papaparseOptions}
                   />
