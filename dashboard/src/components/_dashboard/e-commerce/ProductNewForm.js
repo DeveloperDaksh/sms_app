@@ -141,6 +141,8 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
     setFieldValue,
     getFieldProps,
   } = formik;
+  const [text, setText] = useState("");
+  const [data, setData] = useState([]);
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
@@ -166,8 +168,6 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
     setFieldValue("images", filteredItems);
   };
 
-  const [data, setData] = useState([]);
-
   const handleForce = (data, fileInfo) => setData(data);
 
   const papaparseOptions = {
@@ -188,14 +188,15 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
         console.log(err);
       });
   }
+
   const sendSMS = () => {
     if (data.length > 0)
       data.map((d) => {
-        handleClick(d.message, d.phone_numbers);
-        // console.log(d.message, d.phone_numbers);
+        let message = text.replace("%COL1%", d.name);
+        message = text.replace("%COL2%", d.phone_numbers);
+        handleClick(message, d.phone_numbers);
       });
   };
-  const [text, setText] = useState("");
 
   return (
     <FormikProvider value={formik}>
@@ -216,13 +217,13 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                     <TableRow>
                       <TableCell
                         style={{ cursor: "pointer" }}
-                        onClick={() => setText(`${text}` + " %COL1% ")}
+                        onClick={() => setText(`${text}` + "%COL1%")}
                       >
                         Name
                       </TableCell>
                       <TableCell
                         style={{ cursor: "pointer" }}
-                        onClick={() => setText(`${text}` + " %COL2% ")}
+                        onClick={() => setText(`${text}` + "%COL2%")}
                       >
                         Phone Number
                       </TableCell>
