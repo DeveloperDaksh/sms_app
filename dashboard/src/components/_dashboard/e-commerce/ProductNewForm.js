@@ -178,6 +178,7 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
   };
 
   function handleClick(msg, mob) {
+    console.log(msg);
     let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english`;
     axios
       .get(call)
@@ -192,8 +193,9 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
   const sendSMS = () => {
     if (data.length > 0)
       data.map((d) => {
-        let message = text.replace("%COL1%", d.name);
-        message = text.replace("%COL2%", d.phone_numbers);
+        var message = text
+          .replace("%COL2%", d.phone_numbers)
+          .replace("%COL1%", d.name);
         handleClick(message, d.phone_numbers);
       });
   };
