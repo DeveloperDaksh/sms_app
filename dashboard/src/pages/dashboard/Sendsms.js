@@ -63,17 +63,37 @@ export default function Sendsms() {
     setChecked2(event.target.checked);
   };
 
-  function handleClick() {
+  async function handleClick() {
     let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english`;
     // console.log(call);
-    axios
-      .get(call)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    try {
+      await axios
+        .get(call)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+    try {
+      await axios
+        .post("http://localhost:5000/message/save", {
+          message: msg,
+          phoneNumber: mob,
+          name: "",
+        })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (

@@ -1,5 +1,5 @@
-import faker from "faker";
-import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
+
 import { Icon } from "@iconify/react";
 import { formatDistance } from "date-fns";
 import { Link as RouterLink } from "react-router-dom";
@@ -23,21 +23,27 @@ import {
 // utils
 //
 import Scrollbar from "./Scrollbar";
-
-// ----------------------------------------------------------------------
-
-const NEWS = [...Array(5)].map((_, index) => {
-  const setIndex = index + 1;
-  return {
-    title: faker.name.title(),
-    description: faker.lorem.paragraphs(),
-    postedAt: faker.date.soon(),
-  };
-});
+import axios from "axios";
 
 // ----------------------------------------------------------------------
 
 export default function AllMessages() {
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    try {
+      axios
+        .get("http://localhost:5000/message/getall")
+        .then((data) => {
+          setMessages(data.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
   return (
     <Card>
       <CardHeader title="All Messages" />
@@ -46,41 +52,30 @@ export default function AllMessages() {
         <TableHead>
           <TableRow>
             <TableCell>Message</TableCell>
+            <TableCell align="right">Sent On</TableCell>
             <TableCell align="right">Sent Time</TableCell>
-            <TableCell align="right">Route</TableCell>
             <TableCell align="right">SMS status</TableCell>
-            <TableCell align="right">Action</TableCell>
+            <TableCell align="right">Sent To</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow>
-            <TableCell scope="row" style={{ maxWidth: "500px" }}>
-              <strong>Message</strong>
-              <br />
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Vestibulum sit amet semper ex, et efficitur mauris. Maecenas
-              venenatis condimentum odio, eget dictum erat consequat sed. Donec
-              a tincidunt lectus.
-            </TableCell>
-            <TableCell align="right">Time</TableCell>
-            <TableCell align="right">Route</TableCell>
-            <TableCell align="right">Status</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell scope="row" style={{ maxWidth: "500px" }}>
-              <strong>Message</strong>
-              <br />
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Vestibulum sit amet semper ex, et efficitur mauris. Maecenas
-              venenatis condimentum odio, eget dictum erat consequat sed. Donec
-              a tincidunt lectus.
-            </TableCell>
-            <TableCell align="right">Time</TableCell>
-            <TableCell align="right">Route</TableCell>
-            <TableCell align="right">Status</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
+          {messages?.map((mess) => (
+            <TableRow key={mess._id}>
+              <TableCell scope="row" style={{ maxWidth: "500px" }}>
+                <strong>Message</strong>
+                <br />
+                {mess.message}
+              </TableCell>
+              <TableCell align="right">
+                {mess.createdAt.split(".")[0].split("T")[0]}
+              </TableCell>
+              <TableCell align="right">
+                {mess.createdAt.split(".")[0].split("T")[1]}
+              </TableCell>
+              <TableCell align="right">Sent</TableCell>
+              <TableCell align="right">{mess.name}</TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
 

@@ -183,6 +183,7 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
     axios
       .get(call)
       .then((res) => {
+        setText("");
         console.log(res);
       })
       .catch((err) => {
@@ -192,11 +193,27 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
 
   const sendSMS = () => {
     if (data.length > 0)
-      data.map((d) => {
+      data.map(async (d) => {
         var message = text
-          .replace("%COL2%", d.phone_numbers)
+          .replace("%COL2%", d.phonenumber)
           .replace("%COL1%", d.name);
-        handleClick(message, d.phone_numbers);
+        // handleClick(message, d.phonenumber);
+        try {
+          await axios
+            .post("http://localhost:5000/message/save", {
+              message: message,
+              phoneNumber: d.phonenumber,
+              name: d.name,
+            })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        } catch (error) {
+          console.log(error);
+        }
       });
   };
 
@@ -238,7 +255,7 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                         <TableCell component="th" scope="row">
                           {d.name}
                         </TableCell>
-                        <TableCell>{d.phone_numbers}</TableCell>
+                        <TableCell>{d.phonenumber}</TableCell>
                         {/* <TableCell>{d.message}</TableCell> */}
                       </TableRow>
                     ))}
@@ -247,16 +264,17 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
               </Card>
             )}
           </Grid>
+
           <Grid item xs={12} md={12}>
             <Card sx={{ p: 3 }}>
               <Stack spacing={3}>
-                <TextField
+                {/* <TextField
                   fullWidth
                   label="Title"
                   {...getFieldProps("name")}
                   error={Boolean(touched.name && errors.name)}
                   helperText={touched.name && errors.name}
-                />
+                /> */}
 
                 <div>
                   <LabelStyle>Description</LabelStyle>
@@ -314,9 +332,19 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                   variant="contained"
                   color="primary"
                   fullWidth
+                  disabled={text === ""}
                   onClick={sendSMS}
                 >
                   Submit
+                </Button>
+                <Button
+                  disabled={text === ""}
+                  variant="contained"
+                  color="secondary"
+                  fullWidth
+                  onClick={sendSMS}
+                >
+                  Schedule
                 </Button>
               </Stack>
             </Card>
