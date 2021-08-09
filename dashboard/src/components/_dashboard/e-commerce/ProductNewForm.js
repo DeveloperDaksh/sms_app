@@ -42,6 +42,10 @@ import { UploadMultiFile } from "../../upload";
 import { Button } from "@material-ui/core";
 import CSVReader from "react-csv-reader";
 import axios from "axios";
+import Snackbar from "@material-ui/core/Snackbar";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+
 // ----------------------------------------------------------------------
 
 const GENDER_OPTION = ["Men", "Women", "Kids"];
@@ -142,7 +146,10 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
     getFieldProps,
   } = formik;
   const [text, setText] = useState("");
+  const [message, setMessage] = useState("");
   const [data, setData] = useState([]);
+  const [openSnack, setOpenSnack] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState("2021-08-09");
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
@@ -168,7 +175,11 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
     setFieldValue("images", filteredItems);
   };
 
-  const handleForce = (data, fileInfo) => setData(data);
+  const handleForce = (data, fileInfo) => {
+    setData(data);
+    setMessage("CSV Uploaded");
+    handleClickSnack();
+  };
 
   const papaparseOptions = {
     header: true,
@@ -184,6 +195,8 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
       .get(call)
       .then((res) => {
         setText("");
+        setMessage("Message Sent");
+        handleClickSnack();
         console.log(res);
       })
       .catch((err) => {
@@ -217,8 +230,83 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
       });
   };
 
+  const sendScheduledSMS = () => {
+    if (data.length > 0)
+      data.map(async (d) => {
+        var message = text
+          .replace("%COL2%", d.phonenumber)
+          .replace("%COL1%", d.name);
+        // scheduleSMS(message, d.phonenumber);
+        try {
+          await axios
+            .post("http://localhost:5000/message/save", {
+              message: message,
+              phoneNumber: d.phonenumber,
+              name: d.name,
+            })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        } catch (error) {
+          console.log(error);
+        }
+      });
+  };
+  const handleClickSnack = () => {
+    setOpenSnack(true);
+  };
+
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnack(false);
+  };
+
+  async function scheduleSMS(msg, mob) {
+    let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english&scheduleddate=scheduleddate=${scheduledDate}`;
+    try {
+      await axios
+        .get(call)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <FormikProvider value={formik}>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        open={openSnack}
+        autoHideDuration={6000}
+        onClose={handleCloseSnack}
+        message={message}
+        action={
+          <React.Fragment>
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleCloseSnack}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={12}>
@@ -246,7 +334,6 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                       >
                         Phone Number
                       </TableCell>
-                      {/* <TableCell>Message</TableCell> */}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -256,7 +343,6 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                           {d.name}
                         </TableCell>
                         <TableCell>{d.phonenumber}</TableCell>
-                        {/* <TableCell>{d.message}</TableCell> */}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -268,14 +354,6 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
           <Grid item xs={12} md={12}>
             <Card sx={{ p: 3 }}>
               <Stack spacing={3}>
-                {/* <TextField
-                  fullWidth
-                  label="Title"
-                  {...getFieldProps("name")}
-                  error={Boolean(touched.name && errors.name)}
-                  helperText={touched.name && errors.name}
-                /> */}
-
                 <div>
                   <LabelStyle>Description</LabelStyle>
                   {/* <QuillEditor
@@ -337,12 +415,30 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                 >
                   Submit
                 </Button>
+                <div
+                  style={{
+                    marginTop: "20px",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <TextField
+                    id="date"
+                    label="Date"
+                    type="date"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    value={scheduledDate}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                  />
+                </div>
                 <Button
                   disabled={text === ""}
                   variant="contained"
                   color="secondary"
                   fullWidth
-                  onClick={sendSMS}
+                  onClick={sendScheduledSMS}
                 >
                   Schedule
                 </Button>

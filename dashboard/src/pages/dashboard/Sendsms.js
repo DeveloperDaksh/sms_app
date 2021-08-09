@@ -40,6 +40,7 @@ export default function Sendsms() {
   const [choice, setChoice] = React.useState("Transactional sms-99446");
   const [mob, setMob] = React.useState("");
   const [msg, setMsg] = React.useState("");
+  const [scheduledDate, setScheduledDate] = useState("2021-08-09");
 
   const handleChange = (event) => {
     setChoice(event.target.value);
@@ -62,6 +63,22 @@ export default function Sendsms() {
   const handleCheck2 = (event) => {
     setChecked2(event.target.checked);
   };
+
+  async function scheduleSMS() {
+    let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english&scheduleddate=scheduleddate=${scheduledDate}`;
+    try {
+      await axios
+        .get(call)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   async function handleClick() {
     let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english`;
@@ -197,7 +214,23 @@ export default function Sendsms() {
         </div>
       </div>
 
-      <div style={{ marginTop: "20px" }}>
+      <div
+        style={{ margin: "20px 0", display: "flex", justifyContent: "center" }}
+      >
+        <TextField
+          id="date"
+          label="Date"
+          type="date"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          value={scheduledDate}
+          onChange={(e) => setScheduledDate(e.target.value)}
+        />
+      </div>
+      <div
+        style={{ marginTop: "20px", display: "flex", justifyContent: "center" }}
+      >
         <Button
           onClick={handleClick}
           variant="contained"
@@ -210,6 +243,7 @@ export default function Sendsms() {
           variant="contained"
           color="secondary"
           style={{ height: "45px", width: "107px", marginLeft: "10px" }}
+          onClick={scheduleSMS}
         >
           Schedule
         </Button>
