@@ -3,6 +3,9 @@ import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Snackbar from "@material-ui/core/Snackbar";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 import { Button } from "@material-ui/core";
 import axios from "axios";
 
@@ -41,6 +44,10 @@ export default function Sendsms() {
   const [mob, setMob] = React.useState("");
   const [msg, setMsg] = React.useState("");
   const [scheduledDate, setScheduledDate] = useState("2021-08-09");
+  const [format, setFormat] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("12:00");
+  const [openSnack, setOpenSnack] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleChange = (event) => {
     setChoice(event.target.value);
@@ -64,13 +71,29 @@ export default function Sendsms() {
     setChecked2(event.target.checked);
   };
 
+  const handleClickSnack = () => {
+    setOpenSnack(true);
+  };
+
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnack(false);
+  };
+
   async function scheduleSMS() {
-    let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english&scheduleddate=scheduleddate=${scheduledDate}`;
+    let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english&scheduleddate=${format} ${scheduledTime}`;
+
     try {
       await axios
         .get(call)
         .then((res) => {
           console.log(res);
+          setMob("");
+          setMsg("");
+          setMessage("Message Scheduled");
         })
         .catch((err) => {
           console.log(err);
@@ -80,14 +103,22 @@ export default function Sendsms() {
     }
   }
 
+  const formatDateFunc = (e) => {
+    setScheduledDate(e.target.value);
+    const formatedDate = e.target.value.split("-");
+    setFormat(`${formatedDate[2]}/${formatedDate[1]}/${formatedDate[0]}`);
+  };
+
   async function handleClick() {
     let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english`;
-    // console.log(call);
     try {
       await axios
         .get(call)
         .then((res) => {
           console.log(res);
+          setMob("");
+          setMsg("");
+          setMessage("Message Sent");
         })
         .catch((err) => {
           console.log(err);
@@ -115,6 +146,28 @@ export default function Sendsms() {
 
   return (
     <div>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        open={openSnack}
+        autoHideDuration={6000}
+        onClose={handleCloseSnack}
+        message={message}
+        action={
+          <React.Fragment>
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleCloseSnack}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
       <TextField
         id="standard-select-sms"
         fullWidth
@@ -225,7 +278,21 @@ export default function Sendsms() {
             shrink: true,
           }}
           value={scheduledDate}
-          onChange={(e) => setScheduledDate(e.target.value)}
+          onChange={formatDateFunc}
+        />
+        <TextField
+          id="time"
+          label="Time"
+          type="time"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          inputProps={{
+            step: 300, // 5 min
+          }}
+          value={scheduledTime}
+          onChange={(e) => setScheduledTime(e.target.value)}
+          style={{ marginLeft: "15px" }}
         />
       </div>
       <div

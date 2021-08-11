@@ -10,21 +10,11 @@ import { experimentalStyled as styled } from "@material-ui/core/styles";
 import { LoadingButton } from "@material-ui/lab";
 import {
   Card,
-  Chip,
   Grid,
   Stack,
-  Radio,
-  Switch,
-  Select,
   TextField,
-  InputLabel,
   Typography,
-  RadioGroup,
-  FormControl,
-  Autocomplete,
-  InputAdornment,
   FormHelperText,
-  FormControlLabel,
   Table,
   TableHead,
   TableRow,
@@ -150,6 +140,8 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
   const [data, setData] = useState([]);
   const [openSnack, setOpenSnack] = useState(false);
   const [scheduledDate, setScheduledDate] = useState("2021-08-09");
+  const [format, setFormat] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("12:00");
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
@@ -210,16 +202,19 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
         var message = text
           .replace("%COL2%", d.phonenumber)
           .replace("%COL1%", d.name);
-        // handleClick(message, d.phonenumber);
+        handleClick(message, d.phonenumber);
         try {
           await axios
             .post("http://localhost:5000/message/save", {
               message: message,
               phoneNumber: d.phonenumber,
               name: d.name,
+              status: "Sent",
             })
             .then((res) => {
               console.log(res);
+              setMessage("");
+              setText("");
             })
             .catch((err) => {
               console.log(err);
@@ -230,31 +225,6 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
       });
   };
 
-  const sendScheduledSMS = () => {
-    if (data.length > 0)
-      data.map(async (d) => {
-        var message = text
-          .replace("%COL2%", d.phonenumber)
-          .replace("%COL1%", d.name);
-        // scheduleSMS(message, d.phonenumber);
-        try {
-          await axios
-            .post("http://localhost:5000/message/save", {
-              message: message,
-              phoneNumber: d.phonenumber,
-              name: d.name,
-            })
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        } catch (error) {
-          console.log(error);
-        }
-      });
-  };
   const handleClickSnack = () => {
     setOpenSnack(true);
   };
@@ -268,7 +238,8 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
   };
 
   async function scheduleSMS(msg, mob) {
-    let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english&scheduleddate=scheduleddate=${scheduledDate}`;
+    let call = `http://smspanel.sainfotechnologies.in/rest/services/sendSMS/sendGroupSms?AUTH_KEY=16de534cf94e560a76121a780f42e39&message=${msg}&senderId=HOMEBS&routeId=1&mobileNos=${mob}&smsContentType=english&scheduleddate=${format} ${scheduledTime}`;
+
     try {
       await axios
         .get(call)
@@ -282,6 +253,40 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
       console.log(error);
     }
   }
+
+  const formatDateFunc = (e) => {
+    setScheduledDate(e.target.value);
+    const formatedDate = e.target.value.split("-");
+    setFormat(`${formatedDate[2]}/${formatedDate[1]}/${formatedDate[0]}`);
+  };
+
+  const sendScheduledSMS = () => {
+    if (data.length > 0)
+      data.map(async (d) => {
+        var message = text
+          .replace("%COL2%", d.phonenumber)
+          .replace("%COL1%", d.name);
+        scheduleSMS(message, d.phonenumber);
+        try {
+          await axios
+            .post("http://localhost:5000/message/save", {
+              message: message,
+              phoneNumber: d.phonenumber,
+              name: d.name,
+              createdAt: `${scheduledDate}T${scheduledTime}`,
+              status: "Scheduled",
+            })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        } catch (error) {
+          console.log(error);
+        }
+      });
+  };
 
   return (
     <FormikProvider value={formik}>
@@ -430,7 +435,21 @@ export default function ProductNewForm({ isEdit, currentProduct }) {
                       shrink: true,
                     }}
                     value={scheduledDate}
-                    onChange={(e) => setScheduledDate(e.target.value)}
+                    onChange={formatDateFunc}
+                  />
+                  <TextField
+                    id="time"
+                    label="Time"
+                    type="time"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    inputProps={{
+                      step: 300, // 5 min
+                    }}
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    style={{ marginLeft: "15px" }}
                   />
                 </div>
                 <Button

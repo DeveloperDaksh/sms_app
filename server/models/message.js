@@ -8,6 +8,7 @@ const messageSchema = mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+  status: String,
 });
 
 const Message = mongoose.model("Message", messageSchema);

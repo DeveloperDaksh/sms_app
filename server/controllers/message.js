@@ -1,11 +1,10 @@
 import Message from "../models/message.js";
-import mongoose from "mongoose";
 
 export const saveMessage = async (req, res) => {
   const message = req.body;
   const newMessage = new Message({
     ...message,
-    createdAt: new Date().toISOString(),
+    createdAt: createdAt || new Date().toISOString(),
   });
   try {
     await newMessage.save();
