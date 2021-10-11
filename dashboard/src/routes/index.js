@@ -139,6 +139,7 @@ export default function Router() {
         },
         { path: 'calendar', element: <Calendar /> },
         { path: 'sendsms', element: <Sendsms /> },
+        { path: 'smstwilio', element: <Smstwilio /> },
         { path: 'draftupload', element: <Draftupload /> },
         { path: 'schedular', element: <Schedular /> },
         // { path: 'kanban', element: <Kanban /> }
@@ -265,6 +266,9 @@ const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
 const Mail = Loadable(lazy(() => import('../pages/dashboard/Mail')));
 const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
 const Sendsms = Loadable(lazy(() => import('../pages/dashboard/Sendsms.js')));
+const Smstwilio = Loadable(lazy(() => import('../pages/dashboard/Smstwilio')));
+
+
 const Draftupload = Loadable(lazy(() => import('../pages/dashboard/Draftupload.js')));
 const Schedular = Loadable(lazy(() => import('../pages/dashboard/Schedular.js')));
 // const Kanban = Loadable(lazy(() => import('../pages/dashboard/Kanban')));

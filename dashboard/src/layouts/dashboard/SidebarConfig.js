@@ -103,6 +103,7 @@ const sidebarConfig = [
     subheader: 'app',
     items: [
       { title: 'Send SMS', path: PATH_DASHBOARD.sendsms, icon: ICONS.mail },
+      { title: 'Send SMS Twilio', path: '/dashboard/smstwilio', icon: ICONS.mail },
       { title: 'Upload CSV',  path: PATH_DASHBOARD.eCommerce.newProduct , icon: ICONS.kanban },
       { title: 'Draft Upload',  path: PATH_DASHBOARD.draftupload , icon: ICONS.kanban },
       { title: 'Delivery Report', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics },
